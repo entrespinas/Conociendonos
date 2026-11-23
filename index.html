@@ -33,6 +33,16 @@ h1{font-size:1.5rem;margin:8px 0 4px;text-align:center}
 .turn,.who{font-family:system-ui,sans-serif;text-align:center}
 .turn{font-weight:600;margin:0 0 12px}.who{color:var(--mute);font-size:.8rem;margin:0 0 10px}
 .hide{display:none!important}
+.chat{font-family:system-ui,sans-serif;width:100%;max-width:340px;margin-top:18px;border:1.5px solid var(--line);border-radius:16px;background:var(--card);overflow:hidden}
+.chat h2{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);margin:0;padding:10px 14px;border-bottom:1px solid var(--line)}
+#msgs{height:200px;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.m{max-width:80%;padding:8px 12px;border-radius:14px;font-size:.92rem;line-height:1.35;word-wrap:break-word}
+.m small{display:block;font-size:.7rem;opacity:.7;margin-bottom:2px}
+.m.me{align-self:flex-end;background:var(--ink);color:var(--bg)}
+.m.th{align-self:flex-start;background:var(--line);color:var(--ink)}
+.cin{display:flex;gap:6px;padding:8px;border-top:1px solid var(--line)}
+.cin input{flex:1;min-width:0;padding:10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font-size:1rem}
+.cin button{padding:10px 14px;border-radius:10px;border:0;background:var(--ink);color:var(--bg);font-size:.95rem;cursor:pointer}
 </style>
 </head>
 <body>
@@ -51,6 +61,8 @@ h1{font-size:1.5rem;margin:8px 0 4px;text-align:center}
 <div class="card" id="card"><div class="tag" id="tag"></div><div class="q" id="q"></div><div class="n" id="n"></div></div>
 <div class="ctrl"><button id="shuf">Nueva partida</button><button class="main" id="next">Siguiente →</button></div>
 <p class="hint">Quien tiene el turno lee la carta y responde primero; después responde la otra persona. Al terminar, toquen "Siguiente".</p>
+<div class="chat"><h2>Chat</h2><div id="msgs"></div>
+<div class="cin"><input id="ci" maxlength="300" placeholder="Escribe tu respuesta…" enterkeyhint="send"><button id="cs">Enviar</button></div></div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
@@ -84,6 +96,7 @@ function begin(){$("start").classList.add("hide");$("wait").classList.add("hide"
 function wire(c){
   conn=c;
   c.on("data",d=>{
+    if(d&&d.chat){addMsg(d.from,d.chat,false);return}
     if(d&&d.hello){names[1]=d.hello;S=fresh(-1);S.p=names.slice();begin();push();return}
     S=d;if(!names[1-role]&&S.p)names=S.p.slice();begin()});
   c.on("close",()=>{$("msg").textContent="";$("who").textContent="La otra persona se desconectó. Recarga para volver a empezar."});
@@ -104,6 +117,19 @@ $("jn").onclick=()=>{
   peer.on("open",()=>{const c=peer.connect(PFX+code,{reliable:true});wire(c);c.on("open",()=>c.send({hello:n}))});
   peer.on("error",e=>{$("msg").textContent=e.type==="peer-unavailable"?"No encontré esa sala. Revisa el código.":"Error de conexión: "+e.type});
 };
+function addMsg(who,txt,mine){
+  const m=document.createElement("div");m.className="m "+(mine?"me":"th");
+  const a=document.createElement("small");a.textContent=mine?"Tú":who;
+  const b=document.createElement("span");b.textContent=txt;
+  m.append(a,b);const box=$("msgs");box.appendChild(m);box.scrollTop=box.scrollHeight;
+}
+function sendMsg(){
+  const i=$("ci"),t=i.value.trim();
+  if(!t||!conn||!conn.open)return;
+  conn.send({chat:t,from:names[role]||"Jugador"});addMsg("",t,true);i.value="";
+}
+$("cs").onclick=sendMsg;
+$("ci").onkeydown=e=>{if(e.key==="Enter")sendMsg()};
 $("next").onclick=$("card").onclick=()=>{if(S)save({pos:(S.pos+1)%S.order.length,turn:1-S.turn})};
 $("shuf").onclick=()=>{if(S)save(fresh(S.lvl))};
 </script>
