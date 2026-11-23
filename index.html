@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Conociéndonos: juego de cartas</title>
 <style>
-:root{--bg:#faf6f1;--card:#fff;--ink:#2b2420;--mute:#7a6e66;--a:#d9734e;--b:#4e8fd9;--c:#8a5ad9;--line:#e8dfd6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+:root{--bg:#faf6f1;--card:#fff;--ink:#2b2420;--mute:#7a6e66;--a:#d9734e;--b:#4e8fd9;--c:#8a5ad9;--line:#e8dfd6;--pk:#f9c9dc;--pkt:#5a2a3c;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1816;--card:#2a2420;--ink:#f3ebe4;--mute:#a89c93;--line:#3b332e;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#1c1816;--card:#2a2420;--ink:#f3ebe4;--mute:#a89c93;--line:#3b332e;color-scheme:dark}
 *{box-sizing:border-box}
@@ -23,11 +23,11 @@ h1{font-size:1.5rem;margin:8px 0 4px;text-align:center}
 .n{font-family:system-ui,sans-serif;font-size:.8rem;text-align:center;opacity:.85}
 .ctrl{display:flex;gap:10px;margin-top:20px;font-family:system-ui,sans-serif}
 .ctrl button{border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:12px 18px;border-radius:14px;font-size:.95rem;cursor:pointer}
-.ctrl .main{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.ctrl .main{background:var(--pk);color:var(--pkt);border-color:var(--pk)}
 .hint{color:var(--mute);font-family:system-ui,sans-serif;font-size:.8rem;margin-top:14px;text-align:center;max-width:320px}
 .box{font-family:system-ui,sans-serif;text-align:center;max-width:340px;width:100%}
 .box input{padding:12px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-size:1rem;width:100%;margin:6px 0}
-.box button{padding:12px 16px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font-size:1rem;width:100%;margin:6px 0;cursor:pointer}
+.box button{padding:12px 16px;border-radius:12px;border:0;background:var(--pk);color:var(--pkt);font-size:1rem;width:100%;margin:6px 0;cursor:pointer}
 .box button.alt{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
 .code{font-size:2.2rem;letter-spacing:.2em;font-weight:700;margin:8px 0}
 .turn,.who{font-family:system-ui,sans-serif;text-align:center}
@@ -38,11 +38,11 @@ h1{font-size:1.5rem;margin:8px 0 4px;text-align:center}
 #msgs{height:200px;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
 .m{max-width:80%;padding:8px 12px;border-radius:14px;font-size:.92rem;line-height:1.35;word-wrap:break-word}
 .m small{display:block;font-size:.7rem;opacity:.7;margin-bottom:2px}
-.m.me{align-self:flex-end;background:var(--ink);color:var(--bg)}
+.m.me{align-self:flex-end;background:var(--pk);color:var(--pkt)}
 .m.th{align-self:flex-start;background:var(--line);color:var(--ink)}
 .cin{display:flex;gap:6px;padding:8px;border-top:1px solid var(--line)}
 .cin input{flex:1;min-width:0;padding:10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font-size:1rem}
-.cin button{padding:10px 14px;border-radius:10px;border:0;background:var(--ink);color:var(--bg);font-size:.95rem;cursor:pointer}
+.cin button{padding:10px 14px;border-radius:10px;border:0;background:var(--pk);color:var(--pkt);font-size:.95rem;cursor:pointer}
 </style>
 </head>
 <body>
@@ -61,15 +61,15 @@ h1{font-size:1.5rem;margin:8px 0 4px;text-align:center}
 <div class="card" id="card"><div class="tag" id="tag"></div><div class="q" id="q"></div><div class="n" id="n"></div></div>
 <div class="ctrl"><button id="shuf">Nueva partida</button><button class="main" id="next">Siguiente →</button></div>
 <p class="hint">Respondan como su personaje. Quien tiene el turno lee la carta y responde primero; después responde la otra persona. Al terminar, toquen "Siguiente".</p>
-<div class="chat"><h2>Chat</h2><div id="msgs"></div>
+<div class="chat"><h2>Chat 🐈‍⬛ 🐱</h2><div id="msgs"></div>
 <div class="cin"><input id="ci" maxlength="300" placeholder="Escribe tu respuesta…" enterkeyhint="send"><button id="cs">Enviar</button></div></div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
 const L=[
 {n:"Nivel 1 · Primeras impresiones",c:"#3b82d9",q:["¿Qué fue lo primero que pensaste de mí cuando me conociste?","¿Qué fue lo que más te llamó la atención de mí?","¿Cómo describirías mi forma de ser en tres palabras?","¿Qué es lo que más te hace reír de mí?","¿Qué momento nuestro recuerdas con más cariño hasta ahora?","¿Cuál dirías que es mi mayor virtud?","¿Cuál es esa manía mía que te parece adorable?","¿Qué canción te recuerda a mí?","¿Cómo sería una cita perfecta conmigo?","¿Qué haces cuando me extrañas?","¿Qué te gusta que haga cuando estamos juntos?","¿Qué apodo cariñoso me pondrías y por qué?","¿Qué lugar te gustaría que visitáramos juntos?","¿Eres más de mimos, de palabras o de detalles? ¿Cómo lo demuestras?","¿Qué sientes cuando me ves llegar?","¿Qué plan tranquilo disfrutarías hacer conmigo en casa?","¿Cuál es tu comida favorita para compartir conmigo?","¿Qué te gustaría que supiera de tu día a día?"]},
-{n:"Nivel 2 · Cómo pensamos",c:"#3fa56b",q:["¿Cómo te das cuenta de que estás enamorado(a)?","¿Qué es lo que más te gusta de cómo nos llevamos?","Cuando discutimos, ¿prefieres hablarlo al momento o con calma?","¿Qué te hace sentir más querido(a) por mí?","¿Qué cosas te ponen celoso(a), si es que alguna?","¿Cómo manejas el enojo o el estrés?","¿Piensas mucho las cosas o te dejas llevar por lo que sientes?","¿Qué es lo que más te cuesta decirme?","¿Qué necesitas de mí cuando tienes un mal día?","¿Qué significa la confianza para ti?","¿Qué piensas del amor a primera vista?","¿Qué cosas no negociarías en una relación?","¿Qué cosas te dan ternura?","¿Cuál es tu lenguaje del amor?","¿Prefieres los detalles pequeños de cada día o las grandes sorpresas?","¿Qué te hace sentir seguro(a) conmigo?","¿Cómo quieres que te cuide cuando estás cansado(a) o enfermo(a)?","¿En qué piensas cuando estás solo(a) y te acuerdas de mí?"]},
-{n:"Nivel 3 · Entre nosotros",c:"#e0679a",q:["¿Qué es lo más lindo que te he dicho o hecho?","¿Qué te gustaría que hiciéramos más seguido?","¿Qué cosa mía te gustaría seguir descubriendo?","¿Cuál es tu secreto más tonto o gracioso?","¿Qué te gustaría que hiciéramos juntos por primera vez?","¿Cuál es tu anécdota más graciosa o cuestionable?","¿Qué recuerdo de tu infancia me contarías hoy?","Dime algo que aún no me hayas dicho abiertamente.","¿Hay algo que agradezcas de que estemos juntos?","¿Cómo describirías lo que sentimos y sientes en una sola palabra?","¿Qué locura harías por mí?","¿Qué te gustaría que nunca cambie entre nosotros?","¿Qué has aprendido de mí desde que nos conocemos?","Cierre: cuéntame un recuerdo nuestro que te gustaría repetir."]}
+{n:"Nivel 2 · Cómo pensamos",c:"#3fa56b",q:["¿Prefieres decir las cosas de frente o con tacto?","¿Qué es lo que más te gusta de cómo nos llevamos?","Cuando discutimos, ¿prefieres hablarlo al momento o con calma?","¿Qué te hace sentir más querido(a) por mí?","¿Qué cosas te ponen celoso(a), si es que alguna?","¿Cómo manejas el enojo o el estrés?","¿Piensas mucho las cosas o te dejas llevar por lo que sientes?","¿Qué es lo que más te cuesta decirme?","¿Qué necesitas de mí cuando tienes un mal día?","¿Qué significa la confianza para ti?","¿Qué te hace sentir tranquilo(a) cuando todo se complica?","¿Qué cosas no negociarías en una relación?","¿Qué cosas te dan ternura?","¿Cuál es tu lenguaje del amor?","¿Prefieres los detalles pequeños de cada día o las grandes sorpresas?","¿Qué te hace sentir seguro(a) conmigo?","¿Cómo quieres que te cuide cuando estás cansado(a) o enfermo(a)?","¿En qué piensas cuando estás solo(a) y te acuerdas de mí?"]},
+{n:"Nivel 3 · Entre nosotros",c:"#e0679a",q:["¿Qué es lo más lindo que te he dicho o hecho?","¿Qué te gustaría que hiciéramos más seguido?","¿Qué cosa mía te gustaría seguir descubriendo?","¿Cuál es tu secreto más tonto o gracioso?","¿Qué te gustaría que hiciéramos juntos por primera vez?","¿Cuál es tu anécdota más graciosa o cuestionable?","¿Qué detalle mío crees que casi nadie nota?","Dime algo que aún no me hayas dicho abiertamente.","¿Hay algo que agradezcas de que estemos juntos?","¿Cómo describirías lo que sentimos y sientes en una sola palabra?","¿Hay algo a lo que quisieras que le prestara más atención?","¿Qué te gustaría que nunca cambie entre nosotros?","¿Qué has aprendido de mí desde que nos conocemos?","Cierre: cuéntame un recuerdo nuestro que te gustaría repetir."]}
 ];
 
 const $=id=>document.getElementById(id);
@@ -87,7 +87,7 @@ function render(){
   $("turn").textContent="Primero responde: "+(S.p[S.turn]||"Jugador "+(S.turn+1));
   $("who").textContent=S.p[0]+" y "+S.p[1]+" están conectados";
   const lv=$("lv");lv.innerHTML="";
-  [["Todas",-1,"#2b2420"],...L.map((x,k)=>[x.n.split(" · ")[0],k,x.c])].forEach(([t,k,c])=>{
+  [["Todas",-1,"#ee9bb9"],...L.map((x,k)=>[x.n.split(" · ")[0],k,x.c])].forEach(([t,k,c])=>{
     const b=document.createElement("button");b.textContent=t;
     if(S.lvl===k){b.className="on";b.style.background=c}
     b.onclick=()=>save(fresh(k));lv.appendChild(b)});
