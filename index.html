@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Conociéndonos: juego de cartas</title>
+<style>
+:root{--bg:#faf6f1;--card:#fff;--ink:#2b2420;--mute:#7a6e66;--a:#d9734e;--b:#4e8fd9;--c:#8a5ad9;--line:#e8dfd6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1816;--card:#2a2420;--ink:#f3ebe4;--mute:#a89c93;--line:#3b332e;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1c1816;--card:#2a2420;--ink:#f3ebe4;--mute:#a89c93;--line:#3b332e;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:Georgia,'Times New Roman',serif;display:flex;flex-direction:column;align-items:center;padding:20px 16px}
+h1{font-size:1.5rem;margin:8px 0 4px;text-align:center}
+.sub{color:var(--mute);font-family:system-ui,sans-serif;font-size:.9rem;text-align:center;margin:0 0 18px}
+.levels{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:18px;font-family:system-ui,sans-serif}
+.levels button{border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:9px 14px;border-radius:999px;font-size:.85rem;cursor:pointer}
+.levels button.on{color:#fff;border-color:transparent}
+.card{width:100%;max-width:340px;min-height:340px;border-radius:22px;padding:28px 24px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;box-shadow:0 10px 30px rgba(0,0,0,.18);cursor:pointer;transition:transform .25s}
+.card:active{transform:scale(.98)}
+.tag{font-family:system-ui,sans-serif;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+.q{font-size:1.5rem;line-height:1.3;text-align:center;margin:20px 0}
+.n{font-family:system-ui,sans-serif;font-size:.8rem;text-align:center;opacity:.85}
+.ctrl{display:flex;gap:10px;margin-top:20px;font-family:system-ui,sans-serif}
+.ctrl button{border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:12px 18px;border-radius:14px;font-size:.95rem;cursor:pointer}
+.ctrl .main{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.hint{color:var(--mute);font-family:system-ui,sans-serif;font-size:.8rem;margin-top:14px;text-align:center;max-width:320px}
+.box{font-family:system-ui,sans-serif;text-align:center;max-width:340px;width:100%}
+.box input{padding:12px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);font-size:1rem;width:100%;margin:6px 0}
+.box button{padding:12px 16px;border-radius:12px;border:0;background:var(--ink);color:var(--bg);font-size:1rem;width:100%;margin:6px 0;cursor:pointer}
+.box button.alt{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.code{font-size:2.2rem;letter-spacing:.2em;font-weight:700;margin:8px 0}
+.turn,.who{font-family:system-ui,sans-serif;text-align:center}
+.turn{font-weight:600;margin:0 0 12px}.who{color:var(--mute);font-size:.8rem;margin:0 0 10px}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<h1>Conociéndonos</h1>
+<p class="sub">50 preguntas · en línea y por turnos</p>
+<div class="box" id="start">
+<input id="nm" maxlength="20" placeholder="Tu nombre">
+<button id="mk">Crear sala</button>
+<input id="cd" maxlength="4" inputmode="numeric" placeholder="Código de 4 dígitos">
+<button class="alt" id="jn">Unirme a una sala</button>
+<p class="hint" id="msg"></p>
+</div>
+<div class="box hide" id="wait"><p>Pásale este código a la otra persona:</p><div class="code" id="code"></div><p class="hint">Esperando a que se una…</p></div>
+<div id="game" class="hide" style="display:flex;flex-direction:column;align-items:center;width:100%">
+<div class="who" id="who"></div><div class="levels" id="lv"></div><div class="turn" id="turn"></div>
+<div class="card" id="card"><div class="tag" id="tag"></div><div class="q" id="q"></div><div class="n" id="n"></div></div>
+<div class="ctrl"><button id="shuf">Nueva partida</button><button class="main" id="next">Siguiente →</button></div>
+<p class="hint">Quien tiene el turno lee la carta y responde primero; después responde la otra persona. Al terminar, toquen "Siguiente".</p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+const L=[
+{n:"Nivel 1 · Rompehielo",c:"#d9734e",q:["¿Qué es lo que más te gusta hacer en un día libre?","¿Cuál es la canción que no te cansas de escuchar?","¿Qué serie o película podrías ver mil veces?","¿Cuál es tu comida favorita y cuál no soportas?","¿Qué lugar del mundo te gustaría conocer primero?","¿Cuál es tu mayor manía o hábito raro?","¿Eres de mañanas o de noches? ¿Cómo es tu noche ideal?","¿Qué fue lo último que te hizo reír a carcajadas?","¿Qué talento oculto tienes?","¿Cuál es el mejor consejo que te han dado?","¿Qué superpoder elegirías y para qué lo usarías?","¿Cuál es tu recuerdo favorito de la infancia?","¿Qué app no podrías borrar de tu celular?","¿Qué es lo más espontáneo que has hecho?","¿Qué te hace sentir cómodo(a) con alguien nuevo?","¿Cuál es tu plan perfecto para un domingo?","Si pudieras cenar con cualquier persona, ¿quién sería?","¿Qué es lo que más te emociona últimamente?"]},
+{n:"Nivel 2 · Conexión",c:"#4e8fd9",q:["¿Qué cualidad valoras más en un amigo?","¿Qué creencia has cambiado con los años?","¿Qué te hace sentir más tú mismo(a)?","¿Cuál es el mayor riesgo que has tomado y valió la pena?","¿Qué te cuesta admitir que quieres?","¿Cómo te gusta que te apoyen cuando estás mal?","¿Qué momento de tu vida te cambió más?","¿Qué es lo que más te cuesta perdonar?","¿Qué harías si supieras que no puedes fallar?","¿Cuál es una inseguridad tuya que los demás no suelen notar?","¿Qué sueño dejaste a medias?","¿Quién ha sido una persona importante en tu vida y por qué?","¿De qué te sientes orgulloso(a) y casi nadie lo sabe?","¿Cuándo fue la última vez que lloraste y por qué?","¿Qué suponen los demás de ti que no es cierto?","¿Qué extrañas de otra etapa de tu vida?","¿Qué te gustaría que la gente te preguntara más seguido?","¿Qué lección te costó más aprender?"]},
+{n:"Nivel 3 · A fondo",c:"#8a5ad9",q:["¿Qué es lo que más agradeces de ti mismo(a)?","¿Qué te gustaría haber sabido hace cinco años?","¿Qué miedo te gustaría superar?","¿Qué conversación tienes pendiente?","¿Qué necesitas escuchar hoy?","¿Cómo sabes que alguien es de confianza?","¿Qué parte de ti te cuesta mostrar?","¿Qué es lo que más quieres de tu futuro?","¿Qué te ha enseñado alguien que ya no está en tu vida?","¿Qué recuerdo te hace sentir en paz?","¿Qué es lo más valiente que has hecho?","¿Qué tipo de persona quieres ser en cinco años?","¿Qué has aprendido de mí en esta conversación?","Cierre: dile a la otra persona algo que admiras de ella."]}
+];
+
+const $=id=>document.getElementById(id);
+const flat=[];L.forEach((l,k)=>l.q.forEach(t=>flat.push({t,k})));
+let S=null,conn=null,peer=null,role=0,names=["",""];
+const PFX="conoc-juego-";
+function order(lvl){return L.map((l,k)=>flat.map((_,i)=>i).filter(i=>(lvl<0||lvl===k)&&flat[i].k===k).sort(()=>Math.random()-.5)).flat()}
+function fresh(lvl){return{lvl,order:order(lvl),pos:0,turn:0,p:names.slice()}}
+function push(){if(conn&&conn.open)conn.send(S)}
+function save(patch){S=Object.assign({},S,patch);render();push()}
+function render(){
+  const d=flat[S.order[S.pos]],l=L[d.k];
+  $("card").style.background=l.c;$("tag").textContent=l.n;$("q").textContent=d.t;
+  $("n").textContent=(S.pos+1)+" / "+S.order.length;
+  $("turn").textContent="Primero responde: "+(S.p[S.turn]||"Jugador "+(S.turn+1));
+  $("who").textContent=S.p[0]+" y "+S.p[1]+" están conectados";
+  const lv=$("lv");lv.innerHTML="";
+  [["Todas",-1,"#2b2420"],...L.map((x,k)=>[x.n.split(" · ")[0],k,x.c])].forEach(([t,k,c])=>{
+    const b=document.createElement("button");b.textContent=t;
+    if(S.lvl===k){b.className="on";b.style.background=c}
+    b.onclick=()=>save(fresh(k));lv.appendChild(b)});
+}
+function begin(){$("start").classList.add("hide");$("wait").classList.add("hide");$("game").classList.remove("hide");render()}
+function wire(c){
+  conn=c;
+  c.on("data",d=>{
+    if(d&&d.hello){names[1]=d.hello;S=fresh(-1);S.p=names.slice();begin();push();return}
+    S=d;if(!names[1-role]&&S.p)names=S.p.slice();begin()});
+  c.on("close",()=>{$("msg").textContent="";$("who").textContent="La otra persona se desconectó. Recarga para volver a empezar."});
+}
+$("mk").onclick=()=>{
+  names[0]=$("nm").value.trim()||"Jugador 1";role=0;
+  const code=String(Math.floor(1000+Math.random()*9000));
+  peer=new Peer(PFX+code);
+  peer.on("open",()=>{$("code").textContent=code;$("start").classList.add("hide");$("wait").classList.remove("hide")});
+  peer.on("connection",wire);
+  peer.on("error",e=>{$("msg").textContent=e.type==="unavailable-id"?"Ese código ya existe, intenta otra vez.":"Error de conexión: "+e.type});
+};
+$("jn").onclick=()=>{
+  const n=$("nm").value.trim()||"Jugador 2",code=$("cd").value.trim();
+  if(code.length!==4){$("msg").textContent="Escribe el código de 4 dígitos.";return}
+  role=1;names[1]=n;$("msg").textContent="Conectando…";
+  peer=new Peer();
+  peer.on("open",()=>{const c=peer.connect(PFX+code,{reliable:true});wire(c);c.on("open",()=>c.send({hello:n}))});
+  peer.on("error",e=>{$("msg").textContent=e.type==="peer-unavailable"?"No encontré esa sala. Revisa el código.":"Error de conexión: "+e.type});
+};
+$("next").onclick=$("card").onclick=()=>{if(S)save({pos:(S.pos+1)%S.order.length,turn:1-S.turn})};
+$("shuf").onclick=()=>{if(S)save(fresh(S.lvl))};
+</script>
+</body>
+</html>
