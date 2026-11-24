@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Cormorant+Garamond:wght@600&display=swap">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Conociéndonos: juego de cartas</title>
 <style>
@@ -11,7 +12,7 @@
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%}
 body{background:var(--bg);color:var(--ink);font-family:Georgia,'Times New Roman',serif;display:flex;flex-direction:column;align-items:center;padding:20px 16px}
-h1{font-size:1.5rem;margin:8px 0 4px;text-align:center}
+h1{font-family:'Dancing Script','Brush Script MT','Segoe Script',cursive;font-weight:700;font-size:2.6rem;color:#ee9bb9;margin:4px 0 2px;text-align:center}
 .sub{color:var(--mute);font-family:system-ui,sans-serif;font-size:.9rem;text-align:center;margin:0 0 18px}
 .levels{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:18px;font-family:system-ui,sans-serif}
 .levels button{border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:9px 14px;border-radius:999px;font-size:.85rem;cursor:pointer}
@@ -43,11 +44,23 @@ h1{font-size:1.5rem;margin:8px 0 4px;text-align:center}
 .cin{display:flex;gap:6px;padding:8px;border-top:1px solid var(--line)}
 .cin input{flex:1;min-width:0;padding:10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font-size:1rem}
 .cin button{padding:10px 14px;border-radius:10px;border:0;background:var(--pk);color:var(--pkt);font-size:.95rem;cursor:pointer}
+.gate{position:fixed;inset:0;background:rgba(20,10,14,.93);display:flex;align-items:center;justify-content:center;padding:24px;z-index:50}
+.gate .bx{background:var(--card);color:var(--ink);border-radius:20px;padding:26px 22px;max-width:320px;text-align:center;font-family:system-ui,sans-serif}
+.gate h3{margin:0 0 10px;font-size:1.3rem}.gate p{margin:0 0 16px;font-size:.92rem;line-height:1.4;color:var(--mute)}
+.gate button{width:100%;padding:12px;border-radius:12px;border:0;font-size:.95rem;margin:4px 0;cursor:pointer;background:#9f1239;color:#fff}
+.gate button.alt{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.gate textarea{width:100%;padding:10px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font-size:1rem;margin-bottom:8px;resize:none;font-family:inherit}
+.gate.pk button{background:var(--pk);color:var(--pkt)}
+.gate.pk button.alt{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.gate .nt{background:var(--bg);border-radius:12px;padding:12px;margin:6px 0 12px;text-align:left;color:var(--ink);font-size:.95rem;line-height:1.4;white-space:pre-wrap;word-wrap:break-word}
+.gate .lb{font-size:.75rem;color:var(--mute);text-align:left;margin:6px 0 0}
+.duo{font-family:'Cormorant Garamond',Georgia,'Times New Roman',serif;font-style:normal;font-weight:600;font-size:.95rem;letter-spacing:.16em;text-transform:uppercase;color:#d6578a;text-align:center;margin:0 0 6px}
 </style>
 </head>
 <body>
 <h1>Conociéndonos</h1>
-<p class="sub">50 preguntas · por turnos · con chat</p>
+<div class="duo">Tomás &amp; Margo</div>
+<p class="sub">60 preguntas · por turnos · con chat</p>
 <div class="box" id="start">
 <input id="nm" maxlength="20" placeholder="Tu nombre">
 <button id="mk">Crear sala</button>
@@ -61,28 +74,34 @@ h1{font-size:1.5rem;margin:8px 0 4px;text-align:center}
 <div class="card" id="card"><div class="tag" id="tag"></div><div class="q" id="q"></div><div class="n" id="n"></div></div>
 <div class="ctrl"><button id="shuf">Nueva partida</button><button class="main" id="next">Siguiente →</button></div>
 <p class="hint">Respondan como su personaje. Quien tiene el turno lee la carta y responde primero; después responde la otra persona. Al terminar, toquen "Siguiente".</p>
-<div class="chat"><h2>Chat 🐈‍⬛ 🐱</h2><div id="msgs"></div>
+<div class="chat"><h2>Chat 🐈‍⬛ 💗</h2><div id="msgs"></div>
 <div class="cin"><input id="ci" maxlength="300" placeholder="Escribe tu respuesta…" enterkeyhint="send"><button id="cs">Enviar</button></div></div>
 </div>
+<div class="gate hide" id="gate"><div class="bx"><h3>🔞 Contenido +18</h3><p>El nivel 5 tiene preguntas íntimas solo para personas adultas. Ábranlo únicamente si ambos están de acuerdo y se sienten cómodos.</p><button id="gok">Soy mayor de 18 y quiero continuar</button><button class="alt" id="gno">Volver al nivel 1</button></div></div>
+<div class="gate pk hide" id="note"><div class="bx"><h3>💌 Antes de lo spicy</h3><p>Escribe una nota para la otra persona. Se revelará cuando terminen las 60 preguntas. Puede ser cualquier cosa que quieras decirle.</p><textarea id="nt" maxlength="500" rows="4" placeholder="Tu nota…"></textarea><button id="nsave">Guardar nota</button><button class="alt" id="nskip">Ahora no</button></div></div>
+<div class="gate pk hide" id="fin"><div class="bx" id="finbx"></div></div>
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script>
 const L=[
-{n:"Nivel 1 · Primeras impresiones",c:"#3b82d9",q:["¿Qué fue lo primero que pensaste de mí cuando me conociste?","¿Qué fue lo que más te llamó la atención de mí?","¿Cómo describirías mi forma de ser en tres palabras?","¿Qué es lo que más te hace reír de mí?","¿Qué momento nuestro recuerdas con más cariño hasta ahora?","¿Cuál dirías que es mi mayor virtud?","¿Cuál es esa manía mía que te parece adorable?","¿Qué canción te recuerda a mí?","¿Cómo sería una cita perfecta conmigo?","¿Qué haces cuando me extrañas?","¿Qué te gusta que haga cuando estamos juntos?","¿Qué apodo cariñoso me pondrías y por qué?","¿Qué lugar te gustaría que visitáramos juntos?","¿Eres más de mimos, de palabras o de detalles? ¿Cómo lo demuestras?","¿Qué sientes cuando me ves llegar?","¿Qué plan tranquilo disfrutarías hacer conmigo en casa?","¿Cuál es tu comida favorita para compartir conmigo?","¿Qué te gustaría que supiera de tu día a día?"]},
-{n:"Nivel 2 · Cómo pensamos",c:"#3fa56b",q:["¿Prefieres decir las cosas de frente o con tacto?","¿Qué es lo que más te gusta de cómo nos llevamos?","Cuando discutimos, ¿prefieres hablarlo al momento o con calma?","¿Qué te hace sentir más querido(a) por mí?","¿Qué cosas te ponen celoso(a), si es que alguna?","¿Cómo manejas el enojo o el estrés?","¿Piensas mucho las cosas o te dejas llevar por lo que sientes?","¿Qué es lo que más te cuesta decirme?","¿Qué necesitas de mí cuando tienes un mal día?","¿Qué significa la confianza para ti?","¿Qué te hace sentir tranquilo(a) cuando todo se complica?","¿Qué cosas no negociarías en una relación?","¿Qué cosas te dan ternura?","¿Cuál es tu lenguaje del amor?","¿Prefieres los detalles pequeños de cada día o las grandes sorpresas?","¿Qué te hace sentir seguro(a) conmigo?","¿Cómo quieres que te cuide cuando estás cansado(a) o enfermo(a)?","¿En qué piensas cuando estás solo(a) y te acuerdas de mí?"]},
-{n:"Nivel 3 · Entre nosotros",c:"#e0679a",q:["¿Qué es lo más lindo que te he dicho o hecho?","¿Qué te gustaría que hiciéramos más seguido?","¿Qué cosa mía te gustaría seguir descubriendo?","¿Cuál es tu secreto más tonto o gracioso?","¿Qué te gustaría que hiciéramos juntos por primera vez?","¿Cuál es tu anécdota más graciosa o cuestionable?","¿Qué detalle mío crees que casi nadie nota?","Dime algo que aún no me hayas dicho abiertamente.","¿Hay algo que agradezcas de que estemos juntos?","¿Cómo describirías lo que sentimos y sientes en una sola palabra?","¿Hay algo a lo que quisieras que le prestara más atención?","¿Qué te gustaría que nunca cambie entre nosotros?","¿Qué has aprendido de mí desde que nos conocemos?","Cierre: cuéntame un recuerdo nuestro que te gustaría repetir."]}
+{n:"Nivel 1 · Gustos y mundo interno",c:"#8b5cf6",q:["¿Qué hobby, tema o habilidad te da muchísima curiosidad probar pero todavía no te has animado a empezar?", "¿Cuál es ese libro, película, álbum o serie que sientes que todo el mundo debería experimentar al menos una vez?", "¿Cuál es tu ritual favorito cuando por fin tienes una noche completamente libre para ti?", "¿Qué tipo de música o canción te cambia el ánimo al instante cuando necesitas recargar energía?", "¿Cuál es un tema del que podrías investigar o conversar durante horas sin aburrirte?", "¿Qué actividad física, deporte o rutina te hace sentir más conectado contigo mismo?", "¿Eres más de planes tranquilos de café, librería y charla larga, o de salir a explorar lugares nuevos y moverte?", "¿Qué comida, bebida o antojo es tu debilidad absoluta cuando quieres consentirte después de una semana larga?", "¿Qué cosa creativa —escribir, diseñar, armar playlists, cocinar, tomar fotos— disfrutas más hacer aunque sea solo para ti?", "¿Cuál es tu secreto más tonto o tu anécdota más graciosa o cuestionable?", "¿Qué cosa sobre ti suele sorprender a la gente cuando te empieza a conocer de verdad?", "¿Qué te gustaría que supiera de tu día a día?"]},
+{n:"Nivel 2 · Primeras impresiones",c:"#3b82d9",q:["¿Qué fue lo primero que pensaste de mí cuando me conociste?", "¿Cómo describirías mi forma de ser en tres palabras?", "¿Qué es lo que más te hace reír de mí?", "¿Cuál es esa manía o detalle mío que te parece adorable —o que crees que casi nadie nota—?", "¿Qué canción te recuerda a mí?", "¿Cómo sería una cita perfecta conmigo?", "¿Qué plan tranquilo disfrutarías hacer conmigo en casa?", "¿Qué lugar te gustaría que visitáramos juntos?", "¿Cuál es tu comida favorita para compartir conmigo?", "¿Qué apodo cariñoso me pondrías y por qué?", "¿Qué sientes cuando me ves llegar o cuando sabes que nos vamos a ver?", "Si tuviéramos que hacer juntos una actividad que ninguno de los dos haya probado antes, ¿qué propondrías?"]},
+{n:"Nivel 3 · Cómo pensamos",c:"#3fa56b",q:["¿Prefieres decir las cosas de frente o con tacto?", "Cuando algo te hace ruido o discutimos, ¿prefieres hablarlo al momento o con calma después?", "¿Cómo manejas el enojo, el agotamiento o el estrés cuando tienes la cabeza llena?", "¿Qué necesitas de mí cuando tienes un mal día o estás cansado?", "¿Piensas mucho las cosas o te dejas llevar por lo que sientes?", "¿Cuál es tu lenguaje del amor y cómo te gusta demostrarlo en lo cotidiano?", "¿Qué significa para ti tener tu propio espacio y tu libertad dentro de un vínculo bonito?", "¿Qué significa la confianza para ti y qué cosas no negociarías en un vínculo?", "¿Qué cosas te ponen celoso, si es que alguna, y cómo las gestionas?", "¿Qué te hace sentir seguro y tranquilo conmigo cuando todo alrededor se complica?", "¿Qué cosa te da un poco de pena pedir directamente, pero te encanta cuando nace de la otra persona?", "¿Qué te hace sentir más querido por mí?"]},
+{n:"Nivel 4 · Entre nosotros",c:"#e0679a",q:["¿Qué momento o recuerdo nuestro guardarías para repetirlo tal cual?", "¿Qué es lo más lindo que te he dicho o hecho hasta ahora?", "¿Qué es lo que más te gusta de cómo nos llevamos cuando estamos bien juntos?", "¿Qué tipo de iniciativa de mi parte —un mensaje, una invitación, un plan— te hace sentir más buscado y elegido?", "¿Cómo imaginas el equilibrio ideal entre vernos, respetar nuestros horarios y darnos espacio sin sentir presión?", "¿Qué aprendiste de cómo nos comunicamos estas últimas semanas que te gustaría que hiciéramos distinto de aquí en adelante?", "¿Qué es lo que más te cuesta decirme o qué hay que aún no me hayas dicho abiertamente?", "¿Hay algo a lo que quisieras que le prestara más atención o algo que te gustaría que hiciéramos más seguido?", "¿Qué cosa mía te gustaría seguir descubriendo?", "¿Qué has aprendido de mí desde que nos conocemos?", "Si pudieras dejar una sola regla sencilla para que lo nuestro fluya ligero y sin enredos, ¿cuál sería?", "¿Cómo describirías lo que sentimos y sientes en una sola palabra?"]},
+{n:"Nivel 5 · Sin filtros",c:"#9f1239",q:["En lo íntimo y en el juego de poder, ¿en qué lado te sientes más cómodo o más encendido: tomando el control (dominando), entregándolo (sumisión) o siendo switch según la energía del momento?", "¿Qué dinámica, práctica o elemento BDSM (ataduras, privación sensorial, órdenes, impacto suave, roleplay, etc.) te da más morbo o curiosidad explorar juntos?", "¿Cuáles son tus límites duros (un no rotundo) y tus límites blandos (cosas que probarías solo con mucha confianza y comunicación previa)?", "¿Qué es lo primero que te enciende físicamente de mí cuando estamos cerca o cuando me miras?", "¿Qué parte del juego previo —la tensión verbal, las órdenes, el contacto lento, la provocación o hacerte esperar— te vuelve más loco?", "¿Cuál es una fantasía explícita o escenario íntimo que llevas tiempo queriendo cumplir con alguien con quien tengas química real?", "¿Qué tipo de aftercare (cuidado después de una sesión intensa: mimos, silencio, agua, charla tranquila) necesitas para bajar revoluciones y sentirte bien?", "Dentro de una dinámica abierta y honesta, ¿qué te genera más morbo o tranquilidad: saber qué pasó con alguien más, no entrar en detalles o sentir que aun teniendo libertad nos seguimos eligiendo?", "¿Qué regla o acuerdo claro te haría sentir completamente seguro y sin celos innecesarios si alguno de los dos comparte un encuentro con otra persona?", "¿Qué detalle mío —de mi voz, mi cuello, mi cuerpo o mi forma de moverme— te da más ganas de tocar o marcar?", "Cuando quieres demostrarme deseo sin pedir permiso con palabras, ¿cómo lo haces o cómo te gustaría hacerlo?", "Si tuviéramos una noche entera encerrados sin prisas, sin teléfono y con total confianza para probar lo que queramos, ¿qué sería lo primero que me harías o me pedirías?"]}
 ];
 
 const $=id=>document.getElementById(id);
 const flat=[];L.forEach((l,k)=>l.q.forEach(t=>flat.push({t,k})));
-let S=null,conn=null,peer=null,role=0,names=["",""];
+let myNote=null,theirNote=null,noteSeen=false,lastRid=null,adult=false,S=null,conn=null,peer=null,role=0,names=["",""];
 const PFX="conoc-juego-";
 function order(lvl){return L.map((l,k)=>flat.map((_,i)=>i).filter(i=>(lvl<0||lvl===k)&&flat[i].k===k).sort(()=>Math.random()-.5)).flat()}
-function fresh(lvl){return{lvl,order:order(lvl),pos:0,turn:0,p:names.slice()}}
+function fresh(lvl){return{lvl,order:order(lvl),pos:0,turn:0,done:false,rid:Math.random(),p:names.slice()}}
 function push(){if(conn&&conn.open)conn.send(S)}
 function save(patch){S=Object.assign({},S,patch);render();push()}
 function render(){
+  if(S.rid!==lastRid){lastRid=S.rid;myNote=theirNote=null;noteSeen=false}
   const d=flat[S.order[S.pos]],l=L[d.k];
-  $("card").style.background=l.c;$("tag").textContent=l.n;$("q").textContent=d.t;
+  $("card").style.background=l.c;$("tag").textContent=l.n;$("q").textContent=ov(d)?"🔒 Contenido +18":d.t;
   $("n").textContent=(S.pos+1)+" / "+S.order.length;
   $("turn").textContent="Primero responde: "+(S.p[S.turn]||"Jugador "+(S.turn+1));
   $("who").textContent=S.p[0]+" y "+S.p[1]+" están conectados";
@@ -96,6 +115,7 @@ function begin(){$("start").classList.add("hide");$("wait").classList.add("hide"
 function wire(c){
   conn=c;
   c.on("data",d=>{
+    if(d&&d.note!==undefined){theirNote=d.note;if(S)render();return}
     if(d&&d.chat){addMsg(d.from,d.chat,false);return}
     if(d&&d.hello){names[1]=d.hello;S=fresh(-1);S.p=names.slice();begin();push();return}
     S=d;if(!names[1-role]&&S.p)names=S.p.slice();begin()});
@@ -117,6 +137,45 @@ $("jn").onclick=()=>{
   peer.on("open",()=>{const c=peer.connect(PFX+code,{reliable:true});wire(c);c.on("open",()=>c.send({hello:n}))});
   peer.on("error",e=>{$("msg").textContent=e.type==="peer-unavailable"?"No encontré esa sala. Revisa el código.":"Error de conexión: "+e.type});
 };
+$("gok").onclick=()=>{adult=true;render()};
+$("gno").onclick=()=>save(fresh(0));
+function sendNote(t){myNote=t;noteSeen=true;if(conn&&conn.open)conn.send({note:t});render()}
+$("nsave").onclick=()=>{const t=$("nt").value.trim();if(t)sendNote(t)};
+$("nskip").onclick=()=>{noteSeen=true;render()};
+function ov(d){
+  const needNote=S.lvl<0&&d.k===4&&!noteSeen&&!S.done;
+  const lock=d.k===4&&!adult&&!needNote&&!S.done;
+  $("note").classList.toggle("hide",!needNote);
+  $("gate").classList.toggle("hide",!lock);
+  fin();
+  return lock||needNote;
+}
+function fin(){
+  const f=$("fin"),bx=$("finbx");
+  if(!S.done){f.classList.add("hide");return}
+  f.classList.remove("hide");
+  const keep=$("fnt")?$("fnt").value:"";
+  const other=S.p[1-role]||"la otra persona";
+  bx.innerHTML="";
+  const mk=(t,x,c)=>{const e=document.createElement(t);if(x)e.textContent=x;if(c)e.className=c;bx.appendChild(e);return e};
+  if(myNote===null){
+    mk("h3","¡Terminaron las 60 preguntas! 💗");
+    mk("p","Escribe tu nota para "+other+". Cuando ambos la guarden, se revelan.");
+    const ta=mk("textarea");ta.id="fnt";ta.rows=4;ta.maxLength=500;ta.placeholder="Tu nota…";ta.value=keep;
+    mk("button","Guardar nota").onclick=()=>{const t=ta.value.trim();if(t)sendNote(t)};
+    mk("button","Prefiero no escribir","alt").onclick=()=>sendNote("");
+  }else if(theirNote===null){
+    mk("h3","Nota guardada ✓");
+    mk("p","Esperando la nota de "+other+"…");
+  }else{
+    mk("h3","Mensajes finales 💌");
+    mk("div","Para ti, de "+other+":","lb");
+    mk("div",theirNote||"(Prefirió no escribir una nota)","nt");
+    mk("div","Tu nota para "+other+":","lb");
+    mk("div",myNote||"(No escribiste una nota)","nt");
+    mk("button","Jugar de nuevo").onclick=()=>save(fresh(-1));
+  }
+}
 function addMsg(who,txt,mine){
   const m=document.createElement("div");m.className="m "+(mine?"me":"th");
   const a=document.createElement("small");a.textContent=mine?"Tú":who;
@@ -130,7 +189,7 @@ function sendMsg(){
 }
 $("cs").onclick=sendMsg;
 $("ci").onkeydown=e=>{if(e.key==="Enter")sendMsg()};
-$("next").onclick=$("card").onclick=()=>{if(S)save({pos:(S.pos+1)%S.order.length,turn:1-S.turn})};
+$("next").onclick=$("card").onclick=()=>{if(!S)return;if(S.lvl<0&&S.pos===S.order.length-1){save({done:true});return}save({pos:(S.pos+1)%S.order.length,turn:1-S.turn})};
 $("shuf").onclick=()=>{if(S)save(fresh(S.lvl))};
 </script>
 </body>
